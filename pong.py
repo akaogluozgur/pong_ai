@@ -79,14 +79,17 @@ clipsize = 3
 def save_pop_nn():
     output_dict = {}
     for ix, p in enumerate(cur_pop):
-        output_dict[str(ix)] = p.brain.get_weights()
-    file_name = "nn_weights" + str(datetime.now()) + ".json"
+        weights_list = []
+        for i in p.brain.get_weights():
+            weights_list.append(i.tolist())
+        output_dict[str(ix)] = weights_list
+    file_name = "gen_" + str(generation_num)+ "_nn_weights_" + str(datetime.now()) + ".json"
     f = open(file_name, "w")
-    json.dump(output_dict, f)
+    json.dump(output_dict, f, indent=4, sort_keys=True)
     f.flush()
     f.close()
 
-wn.onkeypress(save_pop_n, "s")
+wn.onkeypress(save_pop_nn, "s")
 
 def paddle_a_up():
     global last_move_a
@@ -273,6 +276,8 @@ def make_move_b():
 
 while True:    
     generation_num += 1
+    if generation_num%5 == 0:
+        save_pop_nn(0)
     pen.write("Rem HP A: {}  Rem HP B: {} --GN: {} Round {}/{}".format(hp_a, hp_b, generation_num,0,len(combos)), align="center", font=("Courier", 24, "normal"))
     # Round Starts
     for ix, combo in enumerate(combos):
