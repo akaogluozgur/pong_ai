@@ -1,20 +1,15 @@
-# Simple Pong in Python 3 for Beginners
-# By @TokyoEdTech
 
 import turtle
 import os
 import random
-
+import time
 wn = turtle.Screen()
 wn.title("Pong")
 wn.bgcolor("black")
 wn.setup(width=800, height=600)
 wn.tracer(0)
 
-# Score
-score_a = 0
-score_b = 0
-
+total_hp = 3
 # Paddle A
 paddle_a = turtle.Turtle()
 paddle_a.speed(0)
@@ -33,6 +28,9 @@ paddle_b.shapesize(stretch_wid=5,stretch_len=1)
 paddle_b.penup()
 paddle_b.goto(350, 0)
 
+hp_a = total_hp
+hp_b = total_hp
+
 # Pen
 pen = turtle.Turtle()
 pen.speed(0)
@@ -41,7 +39,7 @@ pen.color("white")
 pen.penup()
 pen.hideturtle()
 pen.goto(0, 260)
-pen.write("Player A: 0  Player B: 0", align="center", font=("Courier", 24, "normal"))
+pen.write("Remaining HP A: {}  Remaining HP B: {}".format(hp_a, hp_b), align="center", font=("Courier", 24, "normal"))
 
 # Bullet list
 bullet_list_a = []
@@ -51,8 +49,7 @@ ballspeed = 10
 last_move_a = ballspeed,0
 last_move_b = -1 * ballspeed,0
 
-hp_a = 5
-hp_b = 5
+
 
 # Functions
 def paddle_a_up():
@@ -88,7 +85,6 @@ def paddle_b_down():
         last_move_b = -1 * ballspeed, -1 * ballspeed
 
 def paddle_a_shoot():
-    # Ball
     if len(bullet_list_a) < 3:
         ball = turtle.Turtle()
         ball.speed(0)
@@ -113,14 +109,28 @@ def paddle_b_shoot():
         ball.goto(x - 20, y)
         ball.dx, ball.dy =  last_move_b
         bullet_list_b.append(ball)
-# Keyboard bindings
-wn.listen()
-wn.onkeypress(paddle_a_shoot,"d")
-wn.onkeypress(paddle_b_shoot,"Left")
-wn.onkeypress(paddle_a_up, "w")
-wn.onkeypress(paddle_a_down, "s")
-wn.onkeypress(paddle_b_up, "Up")
-wn.onkeypress(paddle_b_down, "Down")
+
+def reset_game():
+    global paddle_a, paddle_b, pen, bullet_list_a, bullet_list_b, last_move_a, last_move_b, hp_a, hp_b, total_hp, wn
+    
+    paddle_a.setx(-350)
+    paddle_a.sety(0)
+    paddle_b.setx(350)
+    paddle_b.sety(0)
+    wn.update()
+    
+    hp_a = total_hp
+    hp_b = total_hp
+    pen.clear()
+    pen.write("Remaining HP A: {}  Remaining HP B: {}".format(hp_a, hp_b), align="center", font=("Courier", 24, "normal"))
+
+    for bullet in bullet_list_a + bullet_list_b:
+        bullet.hideturtle()
+    bullet_list_a = []
+    bullet_list_b = []
+
+    last_move_a = ballspeed,0
+    last_move_b = -1 * ballspeed,0
 
 # Main game loop
 def make_move_a():
@@ -193,24 +203,25 @@ while True:
     # Paddle and ball collisions
     for ball in bullet_list_b.copy():
         if ball.xcor() < -340 and ball.ycor() < paddle_a.ycor() + 50 and ball.ycor() > paddle_a.ycor() - 50:
-            score_b += 1
-            pen.clear()
-            pen.write("Player A: {}  Player B: {}".format(score_a, score_b), align="center", font=("Courier", 24, "normal"))
-            ball.hideturtle()
-            bullet_list_b.remove(ball)
+            hp_a -= 1
+            if hp_a > 0:
+                pen.clear()
+                pen.write("Remaining HP A: {}  Remaining HP B: {}".format(hp_a, hp_b), align="center", font=("Courier", 24, "normal"))
+                ball.hideturtle()
+                bullet_list_b.remove(ball)
+            else:
+                reset_game()
     for ball in bullet_list_a.copy():
         if ball.xcor() > 340 and ball.ycor() < paddle_b.ycor() + 50 and ball.ycor() > paddle_b.ycor() - 50:
-            score_a+= 1
-            pen.clear()
-            pen.write("Player A: {}  Player B: {}".format(score_a, score_b), align="center", font=("Courier", 24, "normal"))
-            ball.hideturtle()
-            bullet_list_a.remove(ball)
+            hp_b -= 1
+            if hp_b > 0:
+                pen.clear()
+                pen.write("Remaining HP A: {}  Remaining HP B: {}".format(hp_a, hp_b), align="center", font=("Courier", 24, "normal"))
+                ball.hideturtle()
+                bullet_list_a.remove(ball)
+            else:
+                reset_game()
         
     
-wn = turtle.Screen()
-wn.title("Pong")
-wn.bgcolor("black")
-wn.setup(width=800, height=600)
-wn.tracer(0)
 
-def start_game
+
