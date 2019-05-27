@@ -281,6 +281,7 @@ while True:
     pen.write("Rem HP A: {}  Rem HP B: {} --GN: {} Round {}/{}".format(hp_a, hp_b, generation_num,0,len(combos)), align="center", font=("Courier", 24, "normal"))
     # Round Starts
     for ix, combo in enumerate(combos):
+        print("Generation: ", generation_num, "Combination: ", combo)
         pen.clear()
         pen.write("Rem HP A: {}  Rem HP B: {} --GN: {} Round {}/{}".format(hp_a, hp_b, generation_num, ix, len(combos)), align="center", font=("Courier", 24, "normal"))
         p_a = cur_pop[combo[0]]
