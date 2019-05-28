@@ -10,6 +10,9 @@ import operator
 import numpy as np
 import json
 from datetime import datetime
+import sys
+
+
 
 wn = turtle.Screen()
 wn.title("Pong")
@@ -28,6 +31,22 @@ max_round = 1000
 cur_pop = []
 for i in range(population_num):
     cur_pop.append(Player())
+
+# Get file argument
+arg_count = len(sys.argv)
+args = sys.argv
+print('Number of arguments:', arg_count, 'arguments.')
+print('Argument List:', args)
+if arg_count > 1:
+    print("Using given file as initial weights!")
+    read_file_name = args[1]
+    generation_num = int(read_file_name.split("_")[1])
+    f = open(read_file_name, "r")
+    weights = json.load(f)
+    for i in range(population_num):
+        cur_weight = weights[str(i)]
+        cur_pop[i].brain.set_weights(cur_weight)
+        print(i, "th player's weights are set!")
 
 combos = list(combinations(range(population_num),2))
 
@@ -277,7 +296,7 @@ def make_move_b():
 while True:    
     generation_num += 1
     if generation_num%5 == 0:
-        save_pop_nn(0)
+        save_pop_nn()
     pen.write("Rem HP A: {}  Rem HP B: {} --GN: {} Round {}/{}".format(hp_a, hp_b, generation_num,0,len(combos)), align="center", font=("Courier", 24, "normal"))
     # Round Starts
     for ix, combo in enumerate(combos):
