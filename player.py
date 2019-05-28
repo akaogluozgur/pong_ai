@@ -13,7 +13,7 @@ class Player:
         self.brain = Sequential()
         self.brain.add(Dense(12, input_dim=34, activation='relu'))
         self.brain.add(Dense(4))
-        self.brain.add(Dense(4, activation="sigmoid"))
+        self.brain.add(Dense(6, activation="sigmoid"))
         self.brain.compile(optimizer="adam", loss="mse")
         
     def move(self, inputs):
@@ -26,10 +26,13 @@ class Player:
         # -1 move down, 0 stay, +1 move up
 
         # shoot prediction
-        if prediction[-1] < 0.5:
+        if prediction[3] < 0.5:
             output.append(0) # do not shoot
         else:
             output.append(1) # shoot
+
+        output.append(prediction[4]) # dx bullet speed
+        output.append(2*(prediction[5]-0.5)) # dy bullet speed
         return output
 
 def breed(p_one, p_two):

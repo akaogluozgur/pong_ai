@@ -143,7 +143,7 @@ def paddle_b_down():
         paddle_b.sety(y)
         last_move_b = -1 * ballspeed, -1 * ballspeed
 
-def paddle_a_shoot():
+def paddle_a_shoot(dx, dy):
     if len(bullet_list_a) < 3:
         ball = turtle.Turtle()
         ball.speed(0)
@@ -153,10 +153,10 @@ def paddle_a_shoot():
         y = paddle_a.ycor()
         x = paddle_a.xcor()
         ball.goto(x + 20, y)
-        ball.dx, ball.dy =  last_move_a
+        ball.dx, ball.dy =  dx*ballspeed, dy*ballspeed
         bullet_list_a.append(ball)
 
-def paddle_b_shoot():
+def paddle_b_shoot(dx, dy):
     if len(bullet_list_b) < 3:
         ball = turtle.Turtle()
         ball.speed(0)
@@ -166,7 +166,7 @@ def paddle_b_shoot():
         y = paddle_b.ycor()
         x = paddle_b.xcor()
         ball.goto(x - 20, y)
-        ball.dx, ball.dy =  last_move_b
+        ball.dx, ball.dy =  -dx*ballspeed, dy*ballspeed
         bullet_list_b.append(ball)
 
 def reset_game():
@@ -234,7 +234,7 @@ def make_move_a():
             inputs.append(0)
             inputs.append(0)
 
-    up_or_down, shoot = p_a.move(inputs)
+    up_or_down, shoot, dx, dy = p_a.move(inputs)
     
     if up_or_down == -1:
         paddle_a_down()
@@ -244,7 +244,7 @@ def make_move_a():
         paddle_a_up()
    
     if shoot == 1:
-        paddle_a_shoot()
+        paddle_a_shoot(dx, dy)
 
 def make_move_b():
     global last_move_b
@@ -284,7 +284,7 @@ def make_move_b():
             inputs.append(0)
             inputs.append(0)
 
-    up_or_down, shoot = p_b.move(inputs)
+    up_or_down, shoot, dx, dy = p_b.move(inputs)
     
     if up_or_down == -1:
         paddle_b_down()
@@ -294,7 +294,7 @@ def make_move_b():
         paddle_b_up()
    
     if shoot == 1:
-        paddle_b_shoot()
+        paddle_b_shoot(dx, dy)
 
 
 while True:    
@@ -403,6 +403,9 @@ while True:
                         is_finished = True
 
         print("Player A Total Score:", p_a.score, "Player B Total Score::", p_b.score)
+
+    for ix in range(len(cur_pop)):
+        print(ix, "score", cur_pop[ix].score)
 
     cur_pop.sort(key=operator.attrgetter('score'), reverse=True)
 
