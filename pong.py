@@ -13,7 +13,7 @@ from datetime import datetime
 import sys
 
 
-
+interface=False
 wn = turtle.Screen()
 wn.title("Pong")
 wn.bgcolor("black")
@@ -176,7 +176,8 @@ def reset_game():
     paddle_a.sety(0)
     paddle_b.setx(350)
     paddle_b.sety(0)
-    wn.update()
+    if interface:
+        wn.update()
     
     hp_a = total_hp
     hp_b = total_hp
@@ -318,8 +319,8 @@ while True:
                 reset_game()
                 is_finished = True
                 continue
-
-            wn.update()
+            if interface:
+                wn.update()
             
             move_func = {
                 "0": make_move_a,
