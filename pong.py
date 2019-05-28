@@ -21,12 +21,13 @@ wn.setup(width=800, height=600)
 wn.tracer(0)
 wn.listen()
 
-total_hp = 3
+total_hp = 5
 generation_num = 0
 population_num = 10 # even number is required
 children_number = 4
 random_number = int(population_num/2) - children_number
-max_round = 1000
+max_round = 2000
+win_bonus = 2
 
 cur_pop = []
 for i in range(population_num):
@@ -314,8 +315,8 @@ while True:
         while not is_finished:
             counter -=1
             if counter == 0:
-                p_a.score += (2*total_hp - (hp_a + hp_b))*0.2 + (hp_a - hp_b)
-                p_b.score += (2*total_hp - (hp_a + hp_b))*0.2 + (hp_b - hp_a)
+                p_a.score += (2*total_hp - (hp_a + hp_b)) + (hp_a - hp_b) - 2*(total_hp - hp_a) + 2*(total_hp - hp_b)
+                p_b.score += (2*total_hp - (hp_a + hp_b)) + (hp_b - hp_a) - 2*(total_hp - hp_b) + 2*(total_hp - hp_a) 
                 reset_game()
                 is_finished = True
                 continue
@@ -381,8 +382,8 @@ while True:
                         ball.clear()
                         del ball
                     else:
-                        p_a.score += (2*total_hp - (hp_a + hp_b))*0.2 + (hp_a - hp_b)
-                        p_b.score += (2*total_hp - (hp_a + hp_b))*0.2 + (hp_b - hp_a)
+                        p_a.score += (2*total_hp - (hp_a + hp_b)) + (hp_a - hp_b) - 2*(total_hp - hp_a) + 2*(total_hp - hp_b)
+                        p_b.score += (2*total_hp - (hp_a + hp_b)) + (hp_b - hp_a) - 2*(total_hp - hp_b) + 2*(total_hp - hp_a) + win_bonus
                         reset_game()
                         is_finished = True
             for ball in bullet_list_a.copy():
@@ -396,8 +397,8 @@ while True:
                         ball.clear()
                         del ball
                     else:
-                        p_a.score += (2*total_hp - (hp_a + hp_b))*0.2 + (hp_a - hp_b)
-                        p_b.score += (2*total_hp - (hp_a + hp_b))*0.2 + (hp_b - hp_a)
+                        p_a.score += (2*total_hp - (hp_a + hp_b)) + (hp_a - hp_b) - 2*(total_hp - hp_a) + 2*(total_hp - hp_b) + win_bonus
+                        p_b.score += (2*total_hp - (hp_a + hp_b)) + (hp_b - hp_a) - 2*(total_hp - hp_b) + 2*(total_hp - hp_a)
                         reset_game()
                         is_finished = True
 
