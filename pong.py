@@ -24,7 +24,7 @@ wn.listen()
 total_hp = 3
 generation_num = 0
 population_num = 10 # even number is required
-children_number = 3
+children_number = 4
 random_number = int(population_num/2) - children_number
 max_round = 1000
 
@@ -185,6 +185,8 @@ def reset_game():
 
     for bullet in bullet_list_a + bullet_list_b:
         bullet.hideturtle()
+        bullet.clear()
+        del bullet
     bullet_list_a = []
     bullet_list_b = []
 
@@ -295,12 +297,12 @@ def make_move_b():
 
 while True:    
     generation_num += 1
-    if generation_num%5 == 0:
+    if generation_num%2 == 0:
         save_pop_nn()
     pen.write("Rem HP A: {}  Rem HP B: {} --GN: {} Round {}/{}".format(hp_a, hp_b, generation_num,0,len(combos)), align="center", font=("Courier", 24, "normal"))
     # Round Starts
     for ix, combo in enumerate(combos):
-        print("Generation: ", generation_num, "Combination: ", combo)
+        print("Generation:", generation_num, "Combination:", combo)
         pen.clear()
         pen.write("Rem HP A: {}  Rem HP B: {} --GN: {} Round {}/{}".format(hp_a, hp_b, generation_num, ix, len(combos)), align="center", font=("Courier", 24, "normal"))
         p_a = cur_pop[combo[0]]
@@ -311,8 +313,8 @@ while True:
         while not is_finished:
             counter -=1
             if counter == 0:
-                p_a.score += hp_a - hp_b
-                p_b.score += hp_b - hp_a
+                p_a.score += (2*total_hp - (hp_a + hp_b))*0.2 + (hp_a - hp_b)
+                p_b.score += (2*total_hp - (hp_a + hp_b))*0.2 + (hp_b - hp_a)
                 reset_game()
                 is_finished = True
                 continue
@@ -353,13 +355,17 @@ while True:
             for ball in bullet_list_a.copy():
                 if ball.xcor() > 350:
                     ball.hideturtle()
+                    ball.clear()
                     bullet_list_a.remove(ball)
+                    del ball
 
 
             for ball in bullet_list_b.copy():
                 if ball.xcor() < -350:
                     ball.hideturtle()
                     bullet_list_b.remove(ball)
+                    ball.clear()
+                    del ball
 
 
             # Paddle and ball collisions
@@ -371,9 +377,11 @@ while True:
                         pen.write("Rem HP A: {}  Rem HP B: {} --GN: {} Round {}/{}".format(hp_a, hp_b, generation_num, ix, len(combos)), align="center", font=("Courier", 24, "normal"))
                         ball.hideturtle()
                         bullet_list_b.remove(ball)
+                        ball.clear()
+                        del ball
                     else:
-                        p_a.score += hp_a - hp_b
-                        p_b.score += hp_b - hp_a
+                        p_a.score += (2*total_hp - (hp_a + hp_b))*0.2 + (hp_a - hp_b)
+                        p_b.score += (2*total_hp - (hp_a + hp_b))*0.2 + (hp_b - hp_a)
                         reset_game()
                         is_finished = True
             for ball in bullet_list_a.copy():
@@ -384,12 +392,16 @@ while True:
                         pen.write("Rem HP A: {}  Rem HP B: {} --GN: {} Round {}/{}".format(hp_a, hp_b, generation_num, ix, len(combos)), align="center", font=("Courier", 24, "normal"))
                         ball.hideturtle()
                         bullet_list_a.remove(ball)
+                        ball.clear()
+                        del ball
                     else:
-                        p_a.score += hp_a - hp_b
-                        p_b.score += hp_b - hp_a
+                        p_a.score += (2*total_hp - (hp_a + hp_b))*0.2 + (hp_a - hp_b)
+                        p_b.score += (2*total_hp - (hp_a + hp_b))*0.2 + (hp_b - hp_a)
                         reset_game()
                         is_finished = True
-    
+
+        print("Player A Total Score:", p_a.score, "Player B Total Score::", p_b.score)
+
     cur_pop.sort(key=operator.attrgetter('score'), reverse=True)
 
     cur_pop = cur_pop[: int(len(cur_pop)/2)]

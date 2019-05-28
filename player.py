@@ -4,8 +4,8 @@ from keras.layers import Flatten
 import numpy as np
 import operator
 
-MUT_POS = 0.05
-
+MUT_POS = 0.1
+MUT_RANGE = 10
 
 class Player:
     def __init__(self):
@@ -13,21 +13,20 @@ class Player:
         self.brain = Sequential()
         self.brain.add(Dense(12, input_dim=34, activation='relu'))
         self.brain.add(Dense(4))
-        self.brain.add(Dense(2, activation="sigmoid"))
+        self.brain.add(Dense(4, activation="sigmoid"))
         self.brain.compile(optimizer="adam", loss="mse")
         
     def move(self, inputs):
         inputs = np.array(inputs)
         prediction = self.brain.predict(inputs.reshape(1,34))[0]
         output = []
-        if prediction[0] < 0.33:
-            output.append(-1) # move down
-        elif prediction[0] < 0.66:
-            output.append(0) # do not move
-        else:
-            output.append(1) # move up
-        
-        if prediction[1] < 0.5:
+        # move prediction
+        move_pred = prediction[:3]
+        output.append(np.argmax(move_pred)-1)
+        # -1 move down, 0 stay, +1 move up
+
+        # shoot prediction
+        if prediction[-1] < 0.5:
             output.append(0) # do not shoot
         else:
             output.append(1) # shoot
@@ -59,6 +58,6 @@ def breed(p_one, p_two):
 
 def mutate(weight):
     if np.random.uniform() <= MUT_POS:
-        mut_ratio = np.random.uniform(-0.5, 0.5)
+        mut_ratio = np.random.uniform(-MUT_RANGE, MUT_RANGE)
         weight += weight * mut_ratio
     return weight
