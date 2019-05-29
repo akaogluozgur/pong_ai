@@ -13,7 +13,8 @@ from datetime import datetime
 import sys
 
 
-interface=False
+interface=True
+human_player=True
 wn = turtle.Screen()
 wn.title("Pong")
 wn.bgcolor("black")
@@ -109,7 +110,7 @@ def save_pop_nn():
     f.flush()
     f.close()
 
-wn.onkeypress(save_pop_nn, "s")
+wn.onkeypress(save_pop_nn, "p")
 
 def paddle_a_up():
     global last_move_a
@@ -198,53 +199,54 @@ def reset_game():
 # Main game loop
 def make_move_a():
     global last_move_a
-    inputs = [  hp_a, 
-                hp_b, 
-                clipsize - len(bullet_list_a),
-                clipsize - len(bullet_list_b),
-                paddle_a.ycor() + 50,
-                paddle_a.ycor() - 50,
-                paddle_b.ycor() + 50,
-                paddle_b.ycor() - 50,
-                last_move_a[1],
-                last_move_b[1],
-                 ]
+    if not human_player:
+        inputs = [  hp_a, 
+                    hp_b, 
+                    clipsize - len(bullet_list_a),
+                    clipsize - len(bullet_list_b),
+                    paddle_a.ycor() + 50,
+                    paddle_a.ycor() - 50,
+                    paddle_b.ycor() + 50,
+                    paddle_b.ycor() - 50,
+                    last_move_a[1],
+                    last_move_b[1],
+                    ]
 
-    for index in range(clipsize):
-        try:
-            inputs.append(abs(paddle_a.xcor() - bullet_list_a[index].xcor()))
-            inputs.append(bullet_list_a[index].ycor())
-            inputs.append(abs(bullet_list_a[index].dx))
-            inputs.append(bullet_list_a[index].dy)
-        except:
-            inputs.append(1000)
-            inputs.append(1000)
-            inputs.append(0)
-            inputs.append(0)
+        for index in range(clipsize):
+            try:
+                inputs.append(abs(paddle_a.xcor() - bullet_list_a[index].xcor()))
+                inputs.append(bullet_list_a[index].ycor())
+                inputs.append(abs(bullet_list_a[index].dx))
+                inputs.append(bullet_list_a[index].dy)
+            except:
+                inputs.append(1000)
+                inputs.append(1000)
+                inputs.append(0)
+                inputs.append(0)
 
-    for index in range(clipsize):
-        try:
-            inputs.append(abs(paddle_b.xcor() - bullet_list_b[index].xcor()))
-            inputs.append(bullet_list_b[index].ycor())
-            inputs.append(abs(bullet_list_b[index].dx))
-            inputs.append(bullet_list_b[index].dy)
-        except:
-            inputs.append(1000)
-            inputs.append(1000)
-            inputs.append(0)
-            inputs.append(0)
+        for index in range(clipsize):
+            try:
+                inputs.append(abs(paddle_b.xcor() - bullet_list_b[index].xcor()))
+                inputs.append(bullet_list_b[index].ycor())
+                inputs.append(abs(bullet_list_b[index].dx))
+                inputs.append(bullet_list_b[index].dy)
+            except:
+                inputs.append(1000)
+                inputs.append(1000)
+                inputs.append(0)
+                inputs.append(0)
 
-    up_or_down, shoot, dx, dy = p_a.move(inputs)
+        up_or_down, shoot, dx, dy = p_a.move(inputs)
+        
+        if up_or_down == -1:
+            paddle_a_down()
+        elif up_or_down == 0:
+            last_move_a = ballspeed,0
+        else:
+            paddle_a_up()
     
-    if up_or_down == -1:
-        paddle_a_down()
-    elif up_or_down == 0:
-        last_move_a = ballspeed,0
-    else:
-        paddle_a_up()
-   
-    if shoot == 1:
-        paddle_a_shoot(dx, dy)
+        if shoot == 1:
+            paddle_a_shoot(dx, dy)
 
 def make_move_b():
     global last_move_b
@@ -296,12 +298,26 @@ def make_move_b():
     if shoot == 1:
         paddle_b_shoot(dx, dy)
 
+def shoot_human_player(x, y):
+    # dx = abs(x)/400
+    dx = 1
+    dy= y/600
+    paddle_a_shoot(dx, dy)
+    print("Shoot: ", dx, dy)
+
+if human_player:
+    wn.onkeypress(paddle_a_up, "w")
+    wn.onkeypress(paddle_a_down, "s")
+
 
 while True:    
     generation_num += 1
-    if generation_num%2 == 0:
-        save_pop_nn()
+    if not human_player:
+        if generation_num%2 == 0:
+            save_pop_nn()
     pen.write("Rem HP A: {}  Rem HP B: {} --GN: {} Round {}/{}".format(hp_a, hp_b, generation_num,0,len(combos)), align="center", font=("Courier", 24, "normal"))
+    
+    wn.onclick(shoot_human_player)
     # Round Starts
     for ix, combo in enumerate(combos):
         print("Generation:", generation_num, "Combination:", combo)
@@ -309,12 +325,15 @@ while True:
         pen.write("Rem HP A: {}  Rem HP B: {} --GN: {} Round {}/{}".format(hp_a, hp_b, generation_num, ix, len(combos)), align="center", font=("Courier", 24, "normal"))
         p_a = cur_pop[combo[0]]
         p_b = cur_pop[combo[1]]
-
+        if human_player:
+            p_b = cur_pop[0] # the best in current gen
         counter = max_round
         is_finished = False
         while not is_finished:
+            if human_player:
+                time.sleep(0.01)
             counter -=1
-            if counter == 0:
+            if not human_player and counter == 0:
                 p_a.score += (2*total_hp - (hp_a + hp_b)) + (hp_a - hp_b) - 2*(total_hp - hp_a) + 2*(total_hp - hp_b)
                 p_b.score += (2*total_hp - (hp_a + hp_b)) + (hp_b - hp_a) - 2*(total_hp - hp_b) + 2*(total_hp - hp_a) 
                 reset_game()
@@ -386,6 +405,11 @@ while True:
                         p_b.score += (2*total_hp - (hp_a + hp_b)) + (hp_b - hp_a) - 2*(total_hp - hp_b) + 2*(total_hp - hp_a) + win_bonus
                         reset_game()
                         is_finished = True
+                        if human_player:
+                            pen.clear()
+                            pen.write("AI WIN!", align="center", font=("Courier", 24, "normal"))
+                            time.sleep(4)
+
             for ball in bullet_list_a.copy():
                 if ball.xcor() > 340 and ball.ycor() < paddle_b.ycor() + 50 and ball.ycor() > paddle_b.ycor() - 50:
                     hp_b -= 1
@@ -401,6 +425,10 @@ while True:
                         p_b.score += (2*total_hp - (hp_a + hp_b)) + (hp_b - hp_a) - 2*(total_hp - hp_b) + 2*(total_hp - hp_a)
                         reset_game()
                         is_finished = True
+                        if human_player:
+                            pen.clear()
+                            pen.write("HUMAN WIN!", align="center", font=("Courier", 24, "normal"))
+                            time.sleep(4)
 
         print("Player A Total Score:", p_a.score, "Player B Total Score::", p_b.score)
 
